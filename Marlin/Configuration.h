@@ -69,7 +69,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "TwinkieXLII" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "Setesh82" // Who made the changes.
 #define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -143,7 +143,7 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Artist-D Pro"
+#define CUSTOM_MACHINE_NAME "Artist-D"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -193,6 +193,27 @@
 // This defines the number of extruders
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
 #define EXTRUDERS 2
+
+// SJP
+// Use to set custom esteps and/or reverse your E Motor direction if you are installing an extruder that needs the direction reversed.
+// If you reversed the wiring on your E motor already (like the Bondtech Guide says to do) then you do not need to reverse it in the firmware here.
+
+// If you want to change the Esteps for your printer you can uncomment the below line and set CUSTOM_ESTEPS_VALUE to what you want - USE WHOLE NUMBERS ONLY
+// This option sets the esteps from the CUSTOM_ESTEPS_VALUE line below.
+// If you need to reverse the e motor direction also enabled the REVERSE_E_MOTOR_DIRECTION option.
+#define CUSTOM_ESTEPS
+
+#if ENABLED(CUSTOM_ESTEPS)
+  #define ESTEPS_VALUE_E1 401
+  #define ESTEPS_VALUE_E2 402
+#else
+  #define ESTEPS_VALUE_E1 101
+  #define ESTEPS_VALUE_E2 101
+#endif
+#define REVERSE_E_MOTOR_DIRECTION
+
+// If you are using an E3D V6 Hotend (or Hemera) with their cartridge thermistor (not glass version) uncomment the below line.
+#define V6_HOTEND
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -491,7 +512,13 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  *
  */
-#define TEMP_SENSOR_0 1
+
+#if ENABLED(V6_HOTEND)
+  #define TEMP_SENSOR_0 5
+#else
+  #define TEMP_SENSOR_0 1
+#endif
+
 #define TEMP_SENSOR_1 1  //TwinkieXLII 热敏电阻  
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -601,9 +628,10 @@
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify up to one value per hotend here, according to your setup.
     // If there are fewer values, the last one applies to the remaining hotends.
-    #define DEFAULT_Kp_LIST {  22.20,  22.20 }
-    #define DEFAULT_Ki_LIST {   1.08,   1.08 }
-    #define DEFAULT_Kd_LIST { 114.00, 114.00 }
+    //SJP
+    #define DEFAULT_Kp_LIST { 10.31,  8.27 }
+    #define DEFAULT_Ki_LIST {  0.91,  0.49 }
+    #define DEFAULT_Kd_LIST { 29.15, 34.62 }
   #else
     #define DEFAULT_Kp  22.20
     #define DEFAULT_Ki   1.08
@@ -846,7 +874,13 @@
 #define I_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define J_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+
+#define EZ_ABL
+#if ENABLED(EZ_ABL)
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true
+#else
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+#endif
 
 /**
  * Stepper Drivers
@@ -930,9 +964,9 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
+  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 101, 101 } //TwinkieXLII
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, ESTEPS_VALUE_E1, ESTEPS_VALUE_E2 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1019,7 +1053,11 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#define S_CURVE_ACCELERATION
+#if ENABLED(EZ_ABL)
+  //#define S_CURVE_ACCELERATION
+#else
+  #define S_CURVE_ACCELERATION
+#endif
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1069,13 +1107,15 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#define PROBE_MANUALLY
+//SJP#define PROBE_MANUALLY
+//#define MANUAL_PROBE_START_Z 0.2 //TwinkieXLII
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-//#define FIX_MOUNTED_PROBE
+//SJP
+#define FIX_MOUNTED_PROBE
 
 /**
  * Use the nozzle as the probe, as with a conductive
@@ -1195,56 +1235,88 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 } //{ 24.7, -39.2, 0 }
+#if ENABLED(EZ_ABL)
+  #define NOZZLE_TO_PROBE_OFFSET_X -45 //-50
+  #define NOZZLE_TO_PROBE_OFFSET_Y -40 //-45
+  #define NOZZLE_TO_PROBE_OFFSET_Z -3.74
+  // Most probes should stay away from the edges of the bed, but
+  // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
+  #define PROBING_MARGIN 55
+#else
+  #define NOZZLE_TO_PROBE_OFFSET_X 0
+  #define NOZZLE_TO_PROBE_OFFSET_Y 0
+  #define NOZZLE_TO_PROBE_OFFSET_Z 0
+  // Most probes should stay away from the edges of the bed, but
+  // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
+  #define PROBING_MARGIN 10
+#endif
 
-// Most probes should stay away from the edges of the bed, but
-// with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 10
+#define NOZZLE_TO_PROBE_OFFSET { NOZZLE_TO_PROBE_OFFSET_X, NOZZLE_TO_PROBE_OFFSET_Y, NOZZLE_TO_PROBE_OFFSET_Z }
 
-// X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_FEEDRATE (133*60)
+// Homing speeds (mm/min)
+#define HOMING_FEEDRATE_XY (50*60)
+
+//#define FAST_PROBING
+#if ENABLED(FAST_PROBING)
+  #define HOMING_FEEDRATE_Z  (15*60)
+  // X and Y axis travel speed (mm/min) between probes
+  #define XY_PROBE_FEEDRATE (266*60)
+#else
+  #define HOMING_FEEDRATE_Z  (8*60)
+  // X and Y axis travel speed (mm/min) between probes
+  #define XY_PROBE_FEEDRATE (133*60)
+#endif
+
+
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST (8*60)
+#define Z_PROBE_FEEDRATE_FAST HOMING_FEEDRATE_Z
 
-// Feedrate (mm/min) for the "accurate" probe of each point
-#define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
+#if ENABLED(FAST_PROBING)
+  // Feedrate (mm/min) for the "accurate" probe of each point
+  #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 1.5)
+#else
+  // Feedrate (mm/min) for the "accurate" probe of each point
+  #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
 
-/**
- * Probe Activation Switch
- * A switch indicating proper deployment, or an optical
- * switch triggered when the carriage is near the bed.
- */
-//#define PROBE_ACTIVATION_SWITCH
-#if ENABLED(PROBE_ACTIVATION_SWITCH)
-  #define PROBE_ACTIVATION_SWITCH_STATE LOW // State indicating probe is active
-  //#define PROBE_ACTIVATION_SWITCH_PIN PC6 // Override default pin
-#endif
-
-/**
- * Tare Probe (determine zero-point) prior to each probe.
- * Useful for a strain gauge or piezo sensor that needs to factor out
- * elements such as cables pulling on the carriage.
- */
-//#define PROBE_TARE
-#if ENABLED(PROBE_TARE)
-  #define PROBE_TARE_TIME  200    // (ms) Time to hold tare pin
-  #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
-  #define PROBE_TARE_STATE HIGH   // State to write pin for tare
-  //#define PROBE_TARE_PIN PA5    // Override default pin
+  /**
+   * Probe Activation Switch
+   * A switch indicating proper deployment, or an optical
+   * switch triggered when the carriage is near the bed.
+   */
+  //#define PROBE_ACTIVATION_SWITCH
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
-    //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
+    #define PROBE_ACTIVATION_SWITCH_STATE LOW // State indicating probe is active
+    //#define PROBE_ACTIVATION_SWITCH_PIN PC6 // Override default pin
   #endif
+
+  /**
+   * Tare Probe (determine zero-point) prior to each probe.
+   * Useful for a strain gauge or piezo sensor that needs to factor out
+   * elements such as cables pulling on the carriage.
+   */
+  //#define PROBE_TARE
+  #if ENABLED(PROBE_TARE)
+    #define PROBE_TARE_TIME  200    // (ms) Time to hold tare pin
+    #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
+    #define PROBE_TARE_STATE HIGH   // State to write pin for tare
+    //#define PROBE_TARE_PIN PA5    // Override default pin
+    #if ENABLED(PROBE_ACTIVATION_SWITCH)
+      //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
+    #endif
+  #endif
+
+  /**
+   * Probe Enable / Disable
+   * The probe only provides a triggered signal when enabled.
+   */
+  //#define PROBE_ENABLE_DISABLE
+  #if ENABLED(PROBE_ENABLE_DISABLE)
+    //#define PROBE_ENABLE_PIN -1   // Override the default pin here
+  #endif
+
 #endif
 
-/**
- * Probe Enable / Disable
- * The probe only provides a triggered signal when enabled.
- */
-//#define PROBE_ENABLE_DISABLE
-#if ENABLED(PROBE_ENABLE_DISABLE)
-  //#define PROBE_ENABLE_PIN -1   // Override the default pin here
-#endif
 
 /**
  * Multiple Probing
@@ -1255,7 +1327,9 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-//#define MULTIPLE_PROBING 2 //TwinkieXLII enable for bltouch
+#if ENABLED(EZ_ABL)
+  #define MULTIPLE_PROBING 2
+#endif
 //#define EXTRA_PROBING    1
 
 /**
@@ -1272,19 +1346,35 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
-//#define Z_AFTER_PROBING           5 // Z position after probing is done
+#if ENABLED(FAST_PROBING)
+  #define Z_CLEARANCE_DEPLOY_PROBE    2 // Z Clearance for Deploy/Stow
+  #define Z_CLEARANCE_BETWEEN_PROBES  2 // Z Clearance between probe points
+  #define Z_CLEARANCE_MULTI_PROBE     2 // Z Clearance between multiple probes
+  //#define Z_AFTER_PROBING             5 // Z position after probing is done
+#else
+  #define Z_CLEARANCE_DEPLOY_PROBE    10 // Z Clearance for Deploy/Stow
+  #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
+  #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+  //#define Z_AFTER_PROBING           5 // Z position after probing is done
+#endif
 
-#define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
+#if ENABLED(EZ_ABL)
+  #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
+  // For M851 give a range for adjusting the Z probe offset
+  #define Z_PROBE_OFFSET_RANGE_MIN -5
+#else
+  #define Z_PROBE_LOW_POINT          -10 // Farthest distance below the trigger-point to go before stopping
+  // For M851 give a range for adjusting the Z probe offset
+  #define Z_PROBE_OFFSET_RANGE_MIN -10
+#endif
 
-// For M851 give a range for adjusting the Z probe offset
-#define Z_PROBE_OFFSET_RANGE_MIN -20
-#define Z_PROBE_OFFSET_RANGE_MAX 20
+
+#define Z_PROBE_OFFSET_RANGE_MAX 1
 
 // Enable the M48 repeatability test to test probe accuracy
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#if ENABLED(EZ_ABL)
+  #define Z_MIN_PROBE_REPEATABILITY_TEST
+#endif
 
 // Before deploy/stow pause for user confirmation
 //#define PAUSE_BEFORE_DEPLOY_STOW
@@ -1299,12 +1389,12 @@
  * These options are most useful for the BLTouch probe, but may also improve
  * readings with inductive probes and piezo sensors.
  */
-//#define PROBING_HEATERS_OFF       // Turn heaters off when probing
+#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 #if ENABLED(PROBING_HEATERS_OFF)
-  //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
+  #define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
   //#define WAIT_FOR_HOTEND         // Wait for hotend to heat back up between probes (to improve accuracy & prevent cold extrude)
 #endif
-//#define PROBING_FANS_OFF          // Turn fans off when probing
+#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_ESTEPPERS_OFF     // Turn all extruder steppers off when probing
 //#define PROBING_STEPPERS_OFF      // Turn all steppers off (unless needed to hold position) when probing (including extruders)
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
@@ -1355,9 +1445,15 @@
 
 // @section extruder
 
-// For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true   //TwinkieXLII * switch for hemera?
-#define INVERT_E1_DIR false  //TwinkieXLII * switch for hemera?
+// For direct drive extruder v6 set to true, for geared extruder set to false.
+#if ENABLED(REVERSE_E_MOTOR_DIRECTION)
+  #define INVERT_E0_DIR true
+  #define INVERT_E1_DIR false
+#else
+  #define INVERT_E0_DIR false
+  #define INVERT_E1_DIR false
+#endif
+
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
@@ -1379,8 +1475,11 @@
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
-
-//#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
+#if ENABLED(EZ_ABL)
+  #define Z_AFTER_HOMING  5      // (mm) Height to move to after homing Z
+#else
+  //#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
+#endif
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
@@ -1399,7 +1498,7 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -62.5  //TwinkieXLII
-#define Y_MIN_POS 0
+#define Y_MIN_POS -10 // SJP
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
@@ -1461,7 +1560,7 @@
  */
 #define FILAMENT_RUNOUT_SENSOR   //TwinkieXLII
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+#define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 
   #define FIL_RUNOUT_STATE     HIGH  // Pin state indicating that filament is NOT present.  //TwinkieXLII
@@ -1563,23 +1662,29 @@
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
-#define MESH_BED_LEVELING
+#if ENABLED(EZ_ABL)
+  #define AUTO_BED_LEVELING_BILINEAR
+#else
+  #define MESH_BED_LEVELING
+#endif
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable one of
  * these options to restore the prior leveling state or to always enable
  * leveling immediately after G28.
  */
-//#define RESTORE_LEVELING_AFTER_G28
-#define ENABLE_LEVELING_AFTER_G28    //Twinkie 2022.1 Changed from RESTORE
+#if DISABLED(EZ_ABL)
+  //#define RESTORE_LEVELING_AFTER_G28
+  #define ENABLE_LEVELING_AFTER_G28    //Twinkie 2022.1 Changed from RESTORE
 
-/**
- * Auto-leveling needs preheating
- */
-//#define PREHEAT_BEFORE_LEVELING
-#if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #define LEVELING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
-  #define LEVELING_BED_TEMP     50
+  /**
+   * Auto-leveling needs preheating
+   */
+  //#define PREHEAT_BEFORE_LEVELING
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    #define LEVELING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+    #define LEVELING_BED_TEMP     50
+  #endif
 #endif
 
 /**
@@ -1600,7 +1705,11 @@
   // The height can be set with M420 Z<height>
   #define ENABLE_LEVELING_FADE_HEIGHT
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    #define DEFAULT_LEVELING_FADE_HEIGHT 10.0 // (mm) Default fade height.
+    #if ENABLED(EZ_ABL)
+      #define DEFAULT_LEVELING_FADE_HEIGHT 2.0 // (mm) Default fade height.
+    #else
+      #define DEFAULT_LEVELING_FADE_HEIGHT 10.0 // (mm) Default fade height.
+    #endif
   #endif
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
@@ -1628,7 +1737,7 @@
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 6
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1684,6 +1793,8 @@
   #define GRID_MAX_POINTS_X 4    // Don't use more than 7 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
+  #define EXTRAPOLATE_BEYOND_GRID
+
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
 
 #endif // BED_LEVELING
@@ -1692,7 +1803,9 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#define LCD_BED_LEVELING  //TwinkieXLII
+#if DISABLED(EZ_ABL)
+  #define LCD_BED_LEVELING  //TwinkieXLII
+#endif
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
@@ -1762,7 +1875,7 @@
  * - Allows Z homing only when XY positions are known and trusted.
  * - If stepper drivers sleep, XY homing may be required again before Z homing.
  */
-//#define Z_SAFE_HOMING  //TwinkieXLII... Bltouch
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
@@ -1771,6 +1884,10 @@
 
 // Homing speeds (mm/min)
 #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (8*60) }
+
+#if ENABLED(EZ_ABL) && ENABLED(S_CURVE_ACCELERATION)
+  #error "S_CURVE_ACCELERATION is not compatible with ABL systems. Disable this and re-compile."
+#endif
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -1882,14 +1999,14 @@
 // Preheat Constants - Up to 5 are supported without changes
 //
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 205 //180
-#define PREHEAT_1_TEMP_BED     55 //70
+#define PREHEAT_1_TEMP_HOTEND 210 //180
+#define PREHEAT_1_TEMP_BED     60 //70
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PETG"
 #define PREHEAT_2_TEMP_HOTEND 230 //240
-#define PREHEAT_2_TEMP_BED    60 //110
+#define PREHEAT_2_TEMP_BED    65 //110
 #define PREHEAT_2_TEMP_CHAMBER 35
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
@@ -1957,7 +2074,7 @@
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   // Default number of pattern repetitions
-  #define NOZZLE_CLEAN_STROKES  6
+  #define NOZZLE_CLEAN_STROKES  2
 
   // Default number of triangles
   #define NOZZLE_CLEAN_TRIANGLES  3
