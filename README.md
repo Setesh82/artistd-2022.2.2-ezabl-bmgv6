@@ -1,4 +1,5 @@
-# Twinkie Firmware For JGMaker Artist-D Standard Version 
+# Firmware For JGMaker Artist-D Standard Version based on the firmware by Twinkie
+![GitHub](https://img.shields.io/github/license/Setesh82/artistd-2022.2.2-ezabl-bmgv6)
 ![GitHub](https://img.shields.io/github/license/TwinkieXLII/artistd.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/TwinkieXLII/artistd.svg)
 
