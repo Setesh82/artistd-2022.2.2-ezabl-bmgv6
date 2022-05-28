@@ -1958,7 +1958,7 @@
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
   #define BABYSTEP_MILLIMETER_UNITS         // Specify BABYSTEP_MULTIPLICATOR_(XY|Z) in mm instead of micro-steps
-  #define BABYSTEP_MULTIPLICATOR_Z  .025    // (steps or mm) Steps or millimeter distance for each Z babystep
+  #define BABYSTEP_MULTIPLICATOR_Z  .01    // (steps or mm) Steps or millimeter distance for each Z babystep
   #define BABYSTEP_MULTIPLICATOR_XY 1       // (steps or mm) Steps or millimeter distance for each XY babystep
 
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
@@ -2698,7 +2698,7 @@
     #define X_MICROSTEPS     16        // 0..256
     #define X_RSENSE          0.11
     #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
-    //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
+    #define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
     //#define X_HOLD_MULTIPLIER 0.5    // Enable to override 'HOLD_MULTIPLIER' for the X axis
   #endif
 
@@ -2708,7 +2708,7 @@
     #define X2_MICROSTEPS    X_MICROSTEPS
     #define X2_RSENSE         0.11
     #define X2_CHAIN_POS     -1
-    //#define X2_INTERPOLATE true
+    #define X2_INTERPOLATE true
     //#define X2_HOLD_MULTIPLIER 0.5
   #endif
 
@@ -2718,7 +2718,7 @@
     #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
     #define Y_CHAIN_POS      -1
-    //#define Y_INTERPOLATE  true
+    #define Y_INTERPOLATE  true
     //#define Y_HOLD_MULTIPLIER 0.5
   #endif
 
@@ -2733,12 +2733,12 @@
   #endif
 
   #if AXIS_IS_TMC(Z)
-    #define Z_CURRENT       800
+    #define Z_CURRENT       1200
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     16
     #define Z_RSENSE          0.11
     #define Z_CHAIN_POS      -1
-    //#define Z_INTERPOLATE  true
+    #define Z_INTERPOLATE  true
     //#define Z_HOLD_MULTIPLIER 0.5
   #endif
 
@@ -2958,7 +2958,7 @@
   #define STEALTHCHOP_I
   #define STEALTHCHOP_J
   #define STEALTHCHOP_K
-  #define STEALTHCHOP_E
+  //#define STEALTHCHOP_E
 
   /**
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
@@ -3815,6 +3815,7 @@
 // Support for MeatPack G-code compression (https://github.com/scottmudge/OctoPrint-MeatPack)
 #define MEATPACK_ON_SERIAL_PORT_1  //TwinkieXLII since 2022.2
 #define MEATPACK_ON_SERIAL_PORT_2  //TwinkieXLII sinc3 2022.2
+//#define MEATPACK_ON_SERIAL_PORT_3  //TwinkieXLII sinc3 2022.2
 
 #define GCODE_CASE_INSENSITIVE  // Accept G-code sent to the firmware in lowercase
 

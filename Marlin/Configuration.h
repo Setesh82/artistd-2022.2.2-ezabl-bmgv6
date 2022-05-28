@@ -900,10 +900,15 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-#define X_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
-#define Y_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
-#define Z_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
-#define X2_DRIVER_TYPE TMC2208_STANDALONE //TwinkieXLII
+#define X_DRIVER_TYPE  TMC2208 //TwinkieXLII
+#define Y_DRIVER_TYPE  TMC2208 //TwinkieXLII
+#define Z_DRIVER_TYPE  TMC2208 //TwinkieXLII
+#define X2_DRIVER_TYPE TMC2208 //TwinkieXLII
+
+//#define X_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
+//#define Y_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
+//#define Z_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
+//#define X2_DRIVER_TYPE TMC2208_STANDALONE //TwinkieXLII
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
@@ -913,7 +918,7 @@
 //#define K_DRIVER_TYPE  A4988
 #define E0_DRIVER_TYPE A4988              //TwinkieXLII
 #define E1_DRIVER_TYPE A4988              //TwinkieXLII
-#define E2_DRIVER_TYPE TMC2208_STANDALONE //TwinkieXLII Because Robin_PRO defines X2 as E2
+#define E2_DRIVER_TYPE TMC2208 //TwinkieXLII Because Robin_PRO defines X2 as E2
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
 //#define E5_DRIVER_TYPE A4988
@@ -986,7 +991,7 @@
  * Override with M201
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 5000, 5000 } //{ 500, 500, 100, 10000 }  TwinkieXLII
+#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 100, 5000, 5000 } //{ 500, 500, 100, 10000 }  TwinkieXLII
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -1013,10 +1018,10 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define CLASSIC_JERK
+#define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK 10.0
+  #define DEFAULT_XJERK 7.0
+  #define DEFAULT_YJERK 7.0
   #define DEFAULT_ZJERK  0.3
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
@@ -1238,7 +1243,9 @@
 #if ENABLED(EZ_ABL)
   #define NOZZLE_TO_PROBE_OFFSET_X -45 //-50
   #define NOZZLE_TO_PROBE_OFFSET_Y -40 //-45
-  #define NOZZLE_TO_PROBE_OFFSET_Z -3.74
+  //#define NOZZLE_TO_PROBE_OFFSET_Z -2.3 // JG Maker build plate
+  #define NOZZLE_TO_PROBE_OFFSET_Z -2.8 // th3d textured build plate.
+  // prob offset gcode - M851
   // Most probes should stay away from the edges of the bed, but
   // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
   #define PROBING_MARGIN 55
